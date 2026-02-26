@@ -88,7 +88,8 @@ def plot_feature_importance(model, vectorizer, save_path, top_n=20):
     bars = ax.barh(range(top_n), top_importances[::-1], color=colors[::-1], edgecolor="white")
     ax.set_yticks(range(top_n))
     ax.set_yticklabels(top_features[::-1], fontsize=10)
-    ax.set_xlabel("Feature Importance (Gini)", fontsize=12)
+    importance_type = model.criterion.capitalize()
+    ax.set_xlabel(f"Feature Importance ({importance_type})", fontsize=12)
     ax.set_title(f"Top {top_n} Most Important Features — Random Forest", fontsize=13, fontweight="bold")
     ax.grid(axis="x", alpha=0.3)
     for bar, val in zip(bars, top_importances[::-1]):
@@ -135,8 +136,17 @@ def main():
     print("\nFull Classification Report:")
     print(classification_report(y_test, y_pred, target_names=["Fake", "Real"]))
 
+    # ── Print Best Criterion and Top Features ─────────────────────────────
+    print(f"\nModel Criterion: {model.criterion}")
+    print(f"\nTop {20} Most Important Features:")
+    importances = model.feature_importances_
+    feature_names = vectorizer.get_feature_names_out()
+    indices = np.argsort(importances)[::-1][:20]
+    for i, idx in enumerate(indices):
+        print(f"  {i+1}. {feature_names[idx]:<25} : {importances[idx]:.4f}")
+
     # ── Plots ──────────────────────────────────────────────────────────────
-    print("Generating evaluation plots...")
+    print("\nGenerating evaluation plots...")
     plot_confusion_matrix(cm, os.path.join(OUTPUTS_DIR, "confusion_matrix.png"))
     roc_auc = plot_roc_curve(y_test, y_prob, os.path.join(OUTPUTS_DIR, "roc_curve.png"))
     plot_feature_importance(model, vectorizer, os.path.join(OUTPUTS_DIR, "feature_importance.png"))

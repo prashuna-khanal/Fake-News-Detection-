@@ -34,6 +34,15 @@ os.makedirs(MODELS_DIR, exist_ok=True)
 STOP_WORDS = set(stopwords.words("english"))
 NEGATIONS = {"no", "not", "never"}
 
+# Corpus-specific fingerprints and meta-data words to remove (to avoid near-perfect ROC)
+CORPUS_FINGERPRINTS = {
+    "reuters", "via", "image", "featured", "wednesday", "thursday", 
+    "friday", "monday", "tuesday", "saturday", "sunday", "hillary", 
+    "clinton", "donald", "trump", "mr", "times", "york", "washington",
+    "post", "breitbart", "guardian", "bbc", "cnn"
+}
+STOP_WORDS.update(CORPUS_FINGERPRINTS)
+
 # Fake-related indicators (Refined to be more specific to misinformation)
 FAKE_WORDS = [
     "scam", "hoax", "clickbait", "viral", "whatsapp", "viber", 
@@ -87,6 +96,12 @@ def main():
     print(f"  Fake (0)      : {(df['label'] == 0).sum()}")
 
     df = df[['content', 'label']].copy()
+    
+    # Remove duplicates
+    initial_count = len(df)
+    df = df.drop_duplicates(subset=['content']).reset_index(drop=True)
+    duplicate_count = initial_count - len(df)
+    print(f"  Removed {duplicate_count} duplicate records.")
 
     # Clean text
     print("\nCleaning text...")
@@ -124,16 +139,15 @@ def main():
     print(f"  Vocabulary size : {len(vectorizer.vocabulary_)}")
     print(f"  Feature matrix  : {X_train_tfidf.shape}")
 
-    # Add extra features (Boosted by repeating columns 2x)
+    # Add extra features (No longer boosted by tiling)
     print("Adding extra features (word counts + suspicious phrases)...")
     extra_train = extract_extra_features(X_train)
-    # Boost: Repeat extra features 2 times instead of 10 to avoid overpowering TF-IDF
-    extra_train_boosted = np.tile(extra_train, 2)
+    # Removing np.tile(..., 2) to prevent overpowering TF-IDF tokens
     
-    X_train_extra = hstack([X_train_tfidf, extra_train_boosted])
-    X_val_extra   = hstack([X_val_tfidf, np.tile(extract_extra_features(X_val), 2)])
-    X_test_extra  = hstack([X_test_tfidf, np.tile(extract_extra_features(X_test), 2)])
-    print(f"  Feature matrix after boosting extra features: {X_train_extra.shape}")
+    X_train_extra = hstack([X_train_tfidf, extra_train])
+    X_val_extra   = hstack([X_val_tfidf, extract_extra_features(X_val)])
+    X_test_extra  = hstack([X_test_tfidf, extract_extra_features(X_test)])
+    print(f"  Feature matrix with extra features: {X_train_extra.shape}")
 
     # Save TF-IDF vectorizer
     vec_path = os.path.join(MODELS_DIR, "tfidf_vectorizer.pkl")

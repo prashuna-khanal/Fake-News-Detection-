@@ -52,10 +52,11 @@ def main():
 
     # ── Hyperparameter Grid ────────────────────────────────────────────────
     param_grid = {
-        "n_estimators": [100, 200, 300],
-        "max_depth":    [None, 20, 40],
-        "min_samples_split": [2, 5],
-        "max_features": ["sqrt", "log2"],
+        "n_estimators": [100, 200],
+        "max_depth":    [10, 20, 30],  # Reduced depth to prevent overfitting on minutiae
+        "min_samples_split": [5, 10], # Higher split threshold for more robust nodes
+        "max_features": ["sqrt"],
+        "criterion": ["gini", "entropy"],
     }
 
     print("\nRunning GridSearchCV (5-fold CV) — this may take a few minutes...")
