@@ -53,8 +53,8 @@ def main():
     # ── Hyperparameter Grid ────────────────────────────────────────────────
     param_grid = {
         "n_estimators": [100, 200],
-        "max_depth":    [10, 20, 30],  # Reduced depth to prevent overfitting on minutiae
-        "min_samples_split": [5, 10], # Higher split threshold for more robust nodes
+        "max_depth":    [10, 20, 30], 
+        "min_samples_split": [5, 10],
         "max_features": ["sqrt"],
         "criterion": ["gini", "entropy"],
     }

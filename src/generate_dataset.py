@@ -76,20 +76,13 @@ def main():
     nepal_real = load_nepal_dataset(nepal_real_path, 1, "nepal_real")
     nepal_fake = load_nepal_dataset(nepal_fake_path, 0, "nepal_fake")
 
-    print("Combining datasets...")
-
     # Combine
     combined = pd.concat([welfake, nepal_real, nepal_fake], ignore_index=True)
-
     # Create content column
     combined['content'] = combined['title'] + " " + combined['text']
-
-    print("Cleaning text...")
     combined['content'] = combined['content'].apply(clean_text)
-
     # Shuffle dataset
     combined = combined.sample(frac=1, random_state=42).reset_index(drop=True)
-
     # Show dataset info
     print("\nFinal Dataset Shape:", combined.shape)
     print("\nLabel Distribution:")

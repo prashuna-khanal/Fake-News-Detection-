@@ -2,12 +2,6 @@
 
 A Random Forest classifier to detect misinformation in Nepali digital news, combining Nepal-specific data with Kaggle-style datasets.
 
-## Setup
-
-```bash
-pip install -r requirements.txt
-python -c "import nltk; nltk.download('stopwords'); nltk.download('punkt')"
-```
 
 ## Run the Pipeline
 
